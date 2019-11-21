@@ -44,7 +44,7 @@ nfa_regexp_comp(FA_Id,RE):- is_regexp(RE), RE=.. [seq,X|Xs], SubRE=.. [seq|Xs], 
 
 
 
-%rinomina: WARNING CONTROLLARE
+%rinomina
 rinomina_final(OldId, NewId):- nfa_final(OldId, Y), retract(nfa_final(OldId, Y)), assert(nfa_final(NewId, Y)).
 rinomina_initial(OldId, NewId):- nfa_initial(OldId, X), retract(nfa_initial(OldId, X)), assert(nfa_initial(NewId, X)).
 rinomina_delta(OldId, NewId):- nfa_delta(OldId, Q1, W, Q2), retract(nfa_delta(OldId, Q1, W, Q2)), assert(nfa_delta(NewId, Q1, W, Q2))	.
