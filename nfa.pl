@@ -33,7 +33,7 @@ nfa_regexp_comp(FA_Id,RE):- is_regexp(RE), RE=.. [seq,X,Y], gensym(FA_Id,NewId1)
                             retract(nfa_final(NewId1, Fin1)), retract(nfa_initial(NewId2, In2)),
                             rinomina_initial(NewId1, FA_Id), rinomina_deltas(NewId1, FA_Id), rinomina_deltas(NewId2, FA_Id), rinomina_final(NewId2, FA_Id).
 
-
+%caso passo seq
 nfa_regexp_comp(FA_Id,RE):- is_regexp(RE), RE=.. [seq,X|Xs], SubRE=.. [seq|Xs], nfa_regexp_comp(FA_Id,SubRE), %creo il sotto automa formato da seq(Xs) dove xs sono tutti gli argomenti tranne il primo
 			    gensym(FA_Id,NewId), nfa_regexp_comp(NewId,X), %creo automa per il primo
 			    nfa_final(NewId,OldFin1), nfa_initial(FA_Id,OldIn2),
@@ -41,7 +41,17 @@ nfa_regexp_comp(FA_Id,RE):- is_regexp(RE), RE=.. [seq,X|Xs], SubRE=.. [seq|Xs], 
 			    retract(nfa_final(NewId,OldFin1)), retract(nfa_initial(FA_Id,OldIn2)),
 			    rinomina_initial(NewId,FA_Id), rinomina_deltas(NewId,FA_Id). %rinonimo il primo automa con id correto
 
-
+%Caso base or 
+nfa_regexp_comp(FA_Id,RE):- is_regexp(RE), RE=.. [or,X,Y], gensym(FA_Id,NewId1), gensym(FA_Id,NewId2),
+			    gensym(q,FinalState),gensym(q,InitialState),
+                            nfa_regexp_comp(NewId1,X), nfa_regexp_comp(NewId2,Y),
+			    nfa_initial(NewId1,In1), nfa_initial(NewId2,In2),
+                            nfa_final(NewId1,Fin1), nfa_final(NewId2,Fin2),
+			    assert(nfa_delta(FA_Id,InitialState,epsilon,In1)), assert(nfa_delta(FA_Id,InitialState,epsilon,In2)),
+			    assert(nfa_delta(FA_Id,Fin1,epsilon,FinalState)), assert(nfa_delta(FA_Id,Fin2,epsilon,FinalState)),
+			    retract(nfa_initial(NewId1,In1)), retract(nfa_initial(NewId2,In2)), retract(nfa_final(NewId1,Fin1)), retract(nfa_final(NewId2,Fin2)),
+			    assert(nfa_initial(FA_Id,InitialState)), assert(nfa_final(FA_Id, FinalState)),
+                            rinomina_deltas(NewId1, FA_Id), rinomina_deltas(NewId2, FA_Id).
 
 
 %rinomina: WARNING CONTROLLARE
