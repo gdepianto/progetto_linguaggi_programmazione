@@ -56,7 +56,7 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE), RE=.. [or,X,Y], gensym(FA_Id,NewId1)
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE), RE=.. [or,X|Xs], SubRE=.. [or|Xs], nfa_regexp_comp(FA_Id,SubRE),
                              gensym(FA_Id,NewId), nfa_regexp_comp(NewId,X),
                              nfa_final(NewId,OldFin), nfa_initial(NewId, OldIn),
-                             nfa_final(Fa_Id, NewFin), nfa_initial(Fa_Id, NewIn),
+                             nfa_final(FA_Id, NewFin), nfa_initial(FA_Id, NewIn), %qui c'era Fa_Id al posto di FA_Id
                              assert(nfa_delta(FA_Id,NewIn,epsilon,OldIn)),
                              assert(nfa_delta(FA_Id,OldFin,epsilon,NewFin)),
                              retract(nfa_final(NewId,OldFin)),%cancella initial e final del nuovo ID
