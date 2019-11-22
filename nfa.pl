@@ -54,9 +54,9 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE), RE=.. [or,X,Y], gensym(FA_Id,NewId1)
                              rename_deltas(NewId1, FA_Id), rename_deltas(NewId2, FA_Id). %elimina initial e final dei sotto alberi e rinomina i delta
 %Passo or
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE), RE=.. [or,X|Xs], SubRE=.. [or|Xs], nfa_regexp_comp(FA_Id,SubRE),
-                             gensym(FA_Id,NewId), nfa_regexp_comp(NewId,X),%crea nuovo ID per generare X
-                             nfa_final(NewId,OldFin), nfa_initial(NewId, OldIn),%recupera Initial e Final sia del nuovo ID che dell'albero generato dalla subroutine
-                             nfa_final(Fa_Id, NewFin), nfa_initial(Fa_Id, NewIn),
+                             gensym(FA_Id,NewId), nfa_regexp_comp(NewId,X),
+                             nfa_final(NewId,OldFin), nfa_initial(NewId, OldIn),
+                             nfa_final(FA_Id, NewFin), nfa_initial(FA_Id, NewIn), %qui c'era Fa_Id al posto di FA_Id
                              assert(nfa_delta(FA_Id,NewIn,epsilon,OldIn)),
                              assert(nfa_delta(FA_Id,OldFin,epsilon,NewFin)),
                              retract(nfa_final(NewId,OldFin)),%cancella initial e final del nuovo ID
