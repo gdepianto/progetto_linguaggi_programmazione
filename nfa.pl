@@ -35,25 +35,33 @@ nfa_regexp_comp(FA_Id,RE):- is_regexp(RE), RE=.. [seq,X,Y], gensym(FA_Id,NewId1)
 
 %caso passo seq
 nfa_regexp_comp(FA_Id,RE):- is_regexp(RE), RE=.. [seq,X|Xs], SubRE=.. [seq|Xs], nfa_regexp_comp(FA_Id,SubRE), %creo il sotto automa formato da seq(Xs) dove xs sono tutti gli argomenti tranne il primo
-			    gensym(FA_Id,NewId), nfa_regexp_comp(NewId,X), %creo automa per il primo
-			    nfa_final(NewId,OldFin1), nfa_initial(FA_Id,OldIn2),
-			    assert(nfa_delta(FA_Id,OldFin1,epsilon,OldIn2)), %collego il final del primo automa al restante
-			    retract(nfa_final(NewId,OldFin1)), retract(nfa_initial(FA_Id,OldIn2)),
-			    rename_initial(NewId,FA_Id), rename_deltas(NewId,FA_Id). %rinomino il primo automa con id correto
+			                      gensym(FA_Id,NewId), nfa_regexp_comp(NewId,X), %creo automa per il primo
+			                      nfa_final(NewId,OldFin1), nfa_initial(FA_Id,OldIn2),
+			                      assert(nfa_delta(FA_Id,OldFin1,epsilon,OldIn2)), %collego il final del primo automa al restante
+			                      retract(nfa_final(NewId,OldFin1)), retract(nfa_initial(FA_Id,OldIn2)),
+			                      rename_initial(NewId,FA_Id), rename_deltas(NewId,FA_Id). %rinomino il primo automa con id correto
 
 %Caso base or
-nfa_regexp_comp(FA_Id,RE):- is_regexp(RE), RE=.. [or,X,Y], gensym(FA_Id,NewId1), gensym(FA_Id,NewId2),
-			    gensym(q,FinalState),gensym(q,InitialState),
-                            nfa_regexp_comp(NewId1,X), nfa_regexp_comp(NewId2,Y),
-			    nfa_initial(NewId1,In1), nfa_initial(NewId2,In2),
-                            nfa_final(NewId1,Fin1), nfa_final(NewId2,Fin2),
-			    assert(nfa_delta(FA_Id,InitialState,epsilon,In1)), assert(nfa_delta(FA_Id,InitialState,epsilon,In2)),
-			    assert(nfa_delta(FA_Id,Fin1,epsilon,FinalState)), assert(nfa_delta(FA_Id,Fin2,epsilon,FinalState)),
-			    retract(nfa_initial(NewId1,In1)), retract(nfa_initial(NewId2,In2)), retract(nfa_final(NewId1,Fin1)), retract(nfa_final(NewId2,Fin2)),
-			    assert(nfa_initial(FA_Id,InitialState)), assert(nfa_final(FA_Id, FinalState)),
-                            rename_deltas(NewId1, FA_Id), rename_deltas(NewId2, FA_Id).
-
-
+nfa_regexp_comp(FA_Id, RE):- is_regexp(RE), RE=.. [or,X,Y], gensym(FA_Id,NewId1), gensym(FA_Id,NewId2),%Crea due nuovi Id per i due casi
+			                       gensym(q,FinalState),gensym(q,InitialState), %crea due nuovi stati iniziali e finali fasulli
+                             nfa_regexp_comp(NewId1,X), nfa_regexp_comp(NewId2,Y), %genera i due sotto-automi
+			                       nfa_initial(NewId1,In1), nfa_initial(NewId2,In2),
+                             nfa_final(NewId1,Fin1), nfa_final(NewId2,Fin2),
+			                       assert(nfa_delta(FA_Id,InitialState,epsilon,In1)), assert(nfa_delta(FA_Id,InitialState,epsilon,In2)),
+			                       assert(nfa_delta(FA_Id,Fin1,epsilon,FinalState)), assert(nfa_delta(FA_Id,Fin2,epsilon,FinalState)),%collega i due dfa ai nuovi stati iniziali e finali
+			                       retract(nfa_initial(NewId1,In1)), retract(nfa_initial(NewId2,In2)), retract(nfa_final(NewId1,Fin1)), retract(nfa_final(NewId2,Fin2)),
+			                       assert(nfa_initial(FA_Id,InitialState)), assert(nfa_final(FA_Id, FinalState)),
+                             rename_deltas(NewId1, FA_Id), rename_deltas(NewId2, FA_Id). %elimina initial e final dei sotto alberi e rinomina i delta
+%Passo or
+nfa_regexp_comp(FA_Id, RE):- is_regexp(RE), RE=.. [or,X|Xs], SubRE=.. [or|Xs], nfa_regexp_comp(FA_Id,SubRE),
+                             gensym(FA_Id,NewId), nfa_regexp_comp(NewId,X),
+                             nfa_final(NewId,OldFin), nfa_initial(NewId, OldIn),
+                             nfa_final(Fa_Id, NewFin), nfa_initial(Fa_Id, NewIn),
+                             assert(nfa_delta(FA_Id,NewIn,epsilon,OldIn)),
+                             assert(nfa_delta(FA_Id,OldFin,epsilon,NewFin)),
+                             retract(nfa_final(NewId,OldFin)),%cancella initial e final del nuovo ID
+                             retract(nfa_initial(NewId, OldIn)),
+                             rename_deltas(NewId,FA_Id).
 %rename
 rename_final(OldId, NewId):- nfa_final(OldId, Y), retract(nfa_final(OldId, Y)), assert(nfa_final(NewId, Y)).
 rename_initial(OldId, NewId):- nfa_initial(OldId, X), retract(nfa_initial(OldId, X)), assert(nfa_initial(NewId, X)).
