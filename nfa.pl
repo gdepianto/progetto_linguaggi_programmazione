@@ -63,13 +63,14 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE), RE=.. [or,X|Xs], SubRE=.. [or|Xs], n
                              retract(nfa_initial(NewId, OldIn)),
                              rename_deltas(NewId,FA_Id).
 %CASO PLUS
-nfa_regexp_comp(FA_Id,RE):- is_regexp(RE), RE=.. [plus,X], nfa_regexp_comp(FA_Id,X), %controlla che sia star e costruisce l'automa partendo dai suoi argomenti
+nfa_regexp_comp(FA_Id,RE):- is_regexp(RE), RE=.. [plus,X], nfa_regexp_comp(FA_Id,seq(X,star(X))).
+/*%nfa_regexp_comp(FA_Id,RE):- is_regexp(RE), RE=.. [plus,X], nfa_regexp_comp(FA_Id,X), %controlla che sia star e costruisce l'automa partendo dai suoi argomenti
                             gensym(q,In), gensym(q,Fin),  %genera un nuovo nodo iniziale e un nuovo nodo finale
                             nfa_initial(FA_Id,OldIn), nfa_final(FA_Id,OldFin), %prende i nodi iniziali e finale dell'automa precendetemente costruito
                             assert(nfa_delta(FA_Id,In,epsilon,OldIn)),assert(nfa_delta(FA_Id,OldFin,epsilon,Fin)),
                             assert(nfa_delta(FA_Id,OldFin,epsilon,OldIn)), %aggiunge alla base di conoscenza i delta con epsilon mosse
                             retract(nfa_initial(FA_Id,OldIn)), retract(nfa_final(FA_Id,OldFin)), %rende i vecchi nodi inizialie  finali dei nodi semplici
-                            assert(nfa_initial(FA_Id,In)), assert(nfa_final(FA_Id,Fin)). %rende i nuovi nodi inizili e finali tali7
+                            assert(nfa_initial(FA_Id,In)), assert(nfa_final(FA_Id,Fin)). %rende i nuovi nodi inizili e finali tali7*/
 
 %rename
 rename_final(OldId, NewId):- nfa_final(OldId, Y), retract(nfa_final(OldId, Y)), assert(nfa_final(NewId, Y)).
