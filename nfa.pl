@@ -83,3 +83,6 @@ nfa_test(FA_Id, Input):- nfa_initial(FA_Id, S), accept(FA_Id, Input, S).
 accept(FA_Id,[],Q):- nfa_final(FA_Id,Q).
 accept(FA_Id,Xs,Q):- nfa_delta(FA_Id,Q,epsilon,S), accept(FA_Id,Xs,S).
 accept(FA_Id,[X|Xs],Q):- nfa_delta(FA_Id,Q,X,S), accept(FA_Id,Xs,S).
+%clear
+nfa_clear():- forall(retract(nfa_final(Y,X)),true), forall(retract(nfa_initial(Y,X)),true), forall(retract(nfa_delta(_,_,_,_)),true).
+nfa_clear(FA_Id):- retract(nfa_final(FA_Id,_)), retract(nfa_initial(FA_Id,_)), forall(retract(nfa_delta(FA_Id,_,_,_)),true).
