@@ -183,6 +183,7 @@ rename_delta(OldId, NewId):- nfa_delta(OldId, Q1, W, Q2),
                              retract(nfa_delta(OldId, Q1, W, Q2)),
                              assert(nfa_delta(NewId, Q1, W, Q2)).
 rename_deltas(OldId, NewId):- forall(rename_delta(OldId, NewId), true).
+
 %NFA_TEST
 nfa_test(FA_Id, Input):- nfa_initial(FA_Id, S),
                          accept(FA_Id, Input, S).
@@ -191,8 +192,8 @@ accept(FA_Id, [], Q):- nfa_final(FA_Id, Q).
 accept(FA_Id, Xs, Q):- nfa_delta(FA_Id, Q, epsilon, S),
                      accept(FA_Id, Xs, S).
 accept(FA_Id, [X|Xs], Q):- nfa_delta(FA_Id, Q, X, S),
-                         accept(FA_Id, Xs, S).
-%clear
+                          accept(FA_Id, Xs, S).
+%NFA_CLEAR
 nfa_clear():- forall(retract(nfa_final(Y, X)), true),
               forall(retract(nfa_initial(Y, X)), true),
               forall(retract(nfa_delta(_, _, _, _)), true).
