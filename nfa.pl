@@ -25,20 +25,20 @@ is_regexp(RE):- RE=..[plus,X],
                 is_regexp(X).
 
 %NFA_REGEXP_COMP
-%caso base atomico: scrive delta per un atomo
+%ATOMICO: scrive delta per un atomo
 nfa_regexp_comp(FA_Id, RE):- atomic(RE),
                              gensym(q, X),
                              gensym(q, Y),
                              assert(nfa_initial(FA_Id, X)),
                              assert(nfa_final(FA_Id, Y)),
                              assert(nfa_delta(FA_Id, X, RE, Y)).
-%caso star
-%controlla che la RE sia star e lancia comp su i suoi argomenti
-%genera un nuovo nodo iniziale e un nuovo nodo finale
-%prende i nodi iniziali e finale dell'automa precendetemente costruito
-%aggiunge alla base di conoscenza i delta con epsilon mosse
-%rende i vecchi nodi inizialie  finali dei nodi semplici
-%rende i nuovi nodi inizili e finali tali
+%STAR
+%-Controlla che la RE sia star e lancia comp su i suoi argomenti
+%-Genera un nuovo nodo iniziale e un nuovo nodo finale
+%-Prende i nodi iniziali e finale dell'automa precendetemente costruito
+%-Agiunge alla base di conoscenza i delta con epsilon mosse
+%-Rende i vecchi nodi inizialie  finali dei nodi semplici
+%-Rende i nuovi nodi inizali e finali tali
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              RE=.. [star, X],
                              nfa_regexp_comp(FA_Id, X),
@@ -54,8 +54,14 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              retract(nfa_final(FA_Id, OldFin)),
                              assert(nfa_initial(FA_Id, In)),
                              assert(nfa_final(FA_Id, Fin)).
-%caso seq
-%caso base
+%SEQ
+%Caso base:
+%-Controlla che il predicato sia seq.
+%-Ggenera due Id sostitutivi per compilare due sottoautomi separatamente.
+%-Connette il nodo finale del primo sottoautoma a quello iniziale del secondo
+% con una epsilon mossa.
+%-Fa in modo che questi due nodi non siano più considerati iniziali e finali
+%-Sostituisce l'FA_Id originale ai due Id sostitutivi
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                             RE=.. [seq, X, Y],
                             gensym(FA_Id, NewId1),
@@ -72,12 +78,12 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                             rename_deltas(NewId2, FA_Id),
                             rename_final(NewId2, FA_Id).
 
-%caso passo seq
-%creo il sotto automa formato da seq(Xs), xs sono tutti gli argomenti tranne il
-%primo
-%creo automa per il primo elemento
-%collego il final del primo automa al restante
-%rinomino il primo automa con id correto
+%Passo:
+%-Creo il sotto automa formato da seq(Xs), Xs sono tutti gli argomenti tranne il
+% primo
+%-Creo automa per il primo elemento
+%-Collego il final del primo automa al restante
+%-Rinomino il primo automa con l'Id correto.
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              RE=.. [seq,X|Xs],
                              SubRE=.. [seq|Xs],
@@ -92,12 +98,13 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 			                       rename_initial(NewId, FA_Id),
                              rename_deltas(NewId, FA_Id).
 
-%Caso base or
-%Crea due nuovi Id per i due casi
-%crea due nuovi stati iniziali e finali fasulli
-%genera i due sotto-automi
-%collega i due dfa ai nuovi stati iniziali e finali
-%elimina initial e final dei sotto alberi e rinomina i delta
+%OR
+%Caso base:
+%-Crea due nuovi Id per i due casi
+%-Crea due nuovi stati iniziali e finali fasulli
+%-Genera i due sotto-automi
+%-Collega i due dfa ai nuovi stati iniziali e finali
+%-Elimina initial e final dei sotto alberi e rinomina i delta
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              RE=.. [or,X,Y],
                              gensym(FA_Id, NewId1),
@@ -122,7 +129,11 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              assert(nfa_final(FA_Id, FinState)),
                              rename_deltas(NewId1, FA_Id),
                              rename_deltas(NewId2, FA_Id).
-%Passo or
+%Passo:
+%-Creo il sotto automa formato da seq(Xs), Xs sono tutti gli argomenti tranne il
+% primo.
+%-Genera un nuovo Id per il primo elemento.
+%-
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              RE=.. [or,X|Xs],
                              SubRE=.. [or|Xs],
@@ -138,10 +149,10 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              retract(nfa_final(NewId, OldFin)),%cancella initial e final del nuovo ID
                              retract(nfa_initial(NewId, OldIn)),
                              rename_deltas(NewId, FA_Id).
-%CASO PLUS
+%PLUS
 %Si può svolgere in due modi:
-%1.chiamando la compilazione di una nuova regexp (seq(X, star(X))
-%2. In maniera simile allo star (commentato)
+%1. Chiamando la compilazione di una nuova regexp: "seq(X, star(X)".
+%2. In maniera simile allo star, ma con un delta in meno (commentato).
 nfa_regexp_comp(FA_Id,RE):- is_regexp(RE),
                             RE=.. [plus,X],
                             nfa_regexp_comp(FA_Id, seq(X, star(X))).
@@ -160,7 +171,7 @@ nfa_regexp_comp(FA_Id,RE):- is_regexp(RE),
                                assert(nfa_initial(FA_Id,In)),
                                assert(nfa_final(FA_Id,Fin)).*/
 
-%rename
+%RENAME
 %Predicati per semplificare la rinominazione dei nodi
 rename_final(OldId, NewId):- nfa_final(OldId, Y),
                              retract(nfa_final(OldId, Y)),
