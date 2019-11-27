@@ -2,26 +2,26 @@
 %Caso base atomico
 is_regexp(RE):- atomic(RE).
 %caso base e passo or
-is_regexp(RE):- RE=..[or,X,Y],
+is_regexp(RE):- RE=..[or, X, Y],
                 is_regexp(X),
                 is_regexp(Y).
-is_regexp(RE):- RE=..[or,X|Xs],
+is_regexp(RE):- RE=..[or, X | Xs],
                 is_regexp(X),
-                Z=..[or|Xs],
+                Z=..[or | Xs],
                 is_regexp(Z).
 %caso base e passo seq
-is_regexp(RE):- RE=..[seq,X,Y],
+is_regexp(RE):- RE=..[seq, X, Y],
                 is_regexp(X),
                 is_regexp(Y).
-is_regexp(RE):- RE=..[seq,X|Xs],
+is_regexp(RE):- RE=..[seq, X | Xs],
                 is_regexp(X),
-                Z=..[seq|Xs],
+                Z=..[seq | Xs],
                 is_regexp(Z).
 %caso base star
-is_regexp(RE):- RE=..[star,X],
+is_regexp(RE):- RE=..[star, X],
                 is_regexp(X).
 %caso base star
-is_regexp(RE):- RE=..[plus,X],
+is_regexp(RE):- RE=..[plus, X],
                 is_regexp(X).
 
 %NFA_REGEXP_COMP
@@ -85,8 +85,8 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %-Collego il final del primo automa al restante
 %-Rinomino il primo automa con l'Id correto.
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
-                             RE=.. [seq,X|Xs],
-                             SubRE=.. [seq|Xs],
+                             RE=.. [seq, X | Xs],
+                             SubRE=.. [seq | Xs],
                              nfa_regexp_comp(FA_Id, SubRE),
 			                       gensym(FA_Id, NewId),
                              nfa_regexp_comp(NewId, X),
@@ -106,7 +106,7 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %-Collega i due dfa ai nuovi stati iniziali e finali
 %-Elimina initial e final dei sotto alberi e rinomina i delta
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
-                             RE=.. [or,X,Y],
+                             RE=.. [or, X, Y],
                              gensym(FA_Id, NewId1),
                              gensym(FA_Id, NewId2),
 			                       gensym(q, FinState),
@@ -135,8 +135,8 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %-Genera un nuovo Id per il primo elemento.
 %-
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
-                             RE=.. [or,X|Xs],
-                             SubRE=.. [or|Xs],
+                             RE=.. [or, X | Xs],
+                             SubRE=.. [or | Xs],
                              nfa_regexp_comp(FA_Id, SubRE),
                              gensym(FA_Id, NewId),
                              nfa_regexp_comp(NewId, X),
@@ -153,23 +153,23 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %Si può svolgere in due modi:
 %1. Chiamando la compilazione di una nuova regexp: "seq(X, star(X)".
 %2. In maniera simile allo star, ma con un delta in meno (commentato).
-nfa_regexp_comp(FA_Id,RE):- is_regexp(RE),
-                            RE=.. [plus,X],
+nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
+                            RE=.. [plus, X],
                             nfa_regexp_comp(FA_Id, seq(X, star(X))).
-/*%nfa_regexp_comp(FA_Id,RE):- is_regexp(RE),
-                               RE=.. [plus,X],
-                               nfa_regexp_comp(FA_Id,X),
-                               gensym(q,In),
-                               gensym(q,Fin),
-                               nfa_initial(FA_Id,OldIn),
-                               nfa_final(FA_Id,OldFin),
-                               assert(nfa_delta(FA_Id,In,epsilon,OldIn)),
-                               assert(nfa_delta(FA_Id,OldFin,epsilon,Fin)),
-                               assert(nfa_delta(FA_Id,OldFin,epsilon,OldIn)),
-                               retract(nfa_initial(FA_Id,OldIn)),
-                               retract(nfa_final(FA_Id,OldFin)),
-                               assert(nfa_initial(FA_Id,In)),
-                               assert(nfa_final(FA_Id,Fin)).*/
+/*%nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
+                               RE=.. [plus, X],
+                               nfa_regexp_comp(FA_Id, X),
+                               gensym(q, In),
+                               gensym(q, Fin),
+                               nfa_initial(FA_Id, OldIn),
+                               nfa_final(FA_Id, OldFin),
+                               assert(nfa_delta(FA_Id, In, epsilon, OldIn)),
+                               assert(nfa_delta(FA_Id, OldFin, epsilon, Fin)),
+                               assert(nfa_delta(FA_Id, OldFin, epsilon, OldIn)),
+                               retract(nfa_initial(FA_Id, OldIn)),
+                               retract(nfa_final(FA_Id, OldFin)),
+                               assert(nfa_initial(FA_Id, In)),
+                               assert(nfa_final(FA_Id, Fin)).*/
 
 %RENAME
 %Predicati per semplificare la rinominazione dei nodi
@@ -191,7 +191,7 @@ nfa_test(FA_Id, Input):- nfa_initial(FA_Id, S),
 accept(FA_Id, [], Q):- nfa_final(FA_Id, Q).
 accept(FA_Id, Xs, Q):- nfa_delta(FA_Id, Q, epsilon, S),
                      accept(FA_Id, Xs, S).
-accept(FA_Id, [X|Xs], Q):- nfa_delta(FA_Id, Q, X, S),
+accept(FA_Id, [X | Xs], Q):- nfa_delta(FA_Id, Q, X, S),
                           accept(FA_Id, Xs, S).
 %NFA_CLEAR
 nfa_clear():- forall(retract(nfa_final(Y, X)), true),
