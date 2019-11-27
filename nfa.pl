@@ -193,6 +193,10 @@ accept(FA_Id, Xs, Q):- nfa_delta(FA_Id, Q, epsilon, S),
                      accept(FA_Id, Xs, S).
 accept(FA_Id, [X | Xs], Q):- nfa_delta(FA_Id, Q, X, S),
                           accept(FA_Id, Xs, S).
+%NFA_LISTING
+nfa_listing(FA_Id):- listing(nfa_initial(FA_Id, _)),
+                     listing(nfa_final(FA_Id, _)),
+                     listing(nfa_delta(FA_Id, _, _, _)).
 %NFA_CLEAR
 nfa_clear():- forall(retract(nfa_final(Y, X)), true),
               forall(retract(nfa_initial(Y, X)), true),
