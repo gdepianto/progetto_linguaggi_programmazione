@@ -130,10 +130,14 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              rename_deltas(NewId1, FA_Id),
                              rename_deltas(NewId2, FA_Id).
 %Passo:
-%-Creo il sotto automa formato da seq(Xs), Xs sono tutti gli argomenti tranne il
+%-Creo il sotto automa formato da or(Xs), Xs sono tutti gli argomenti tranne il
 % primo.
 %-Genera un nuovo Id per il primo elemento.
-%-
+%-Compila X col nuovo Id
+%-Recupera i nodi iniziali e finali del primo elemento e del sotto automa or(Xs)
+%-Collega l'automa X all'Automa Xs con epsilon mosse
+%-Cancella nodi iniziali e finali del nuovo ID
+%-Rinomina i delta dell'automa X
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              RE=.. [or, X | Xs],
                              SubRE=.. [or | Xs],
@@ -146,7 +150,7 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              nfa_initial(FA_Id, NewIn),
                              assert(nfa_delta(FA_Id, NewIn, epsilon, OldIn)),
                              assert(nfa_delta(FA_Id, OldFin, epsilon, NewFin)),
-                             retract(nfa_final(NewId, OldFin)),%cancella initial e final del nuovo ID
+                             retract(nfa_final(NewId, OldFin)),
                              retract(nfa_initial(NewId, OldIn)),
                              rename_deltas(NewId, FA_Id).
 %PLUS
