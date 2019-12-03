@@ -57,7 +57,7 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %SEQ
 %Caso base:
 %-Controlla che il predicato sia seq.
-%-Ggenera due Id sostitutivi per compilare due sottoautomi separatamente.
+%-Genera due Id sostitutivi per compilare due sottoautomi separatamente.
 %-Connette il nodo finale del primo sottoautoma a quello iniziale del secondo
 % con una epsilon mossa.
 %-Fa in modo che questi due nodi non siano più considerati iniziali e finali
@@ -81,7 +81,7 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %Passo:
 %-Creo il sotto automa formato da seq(Xs), Xs sono tutti gli argomenti tranne il
 % primo
-%-Creo automa per il primo elemento
+%-Creo automa per il primo elemento utilizzando un Id nuovo
 %-Collego il final del primo automa al restante
 %-Rinomino il primo automa con l'Id correto.
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
@@ -158,8 +158,8 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %1. Chiamando la compilazione di una nuova regexp: "seq(X, star(X)".
 %2. In maniera simile allo star, ma con un delta in meno (commentato).
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
-                            RE=.. [plus, X],
-                            nfa_regexp_comp(FA_Id, seq(X, star(X))).
+                             RE=.. [plus, X],
+                             nfa_regexp_comp(FA_Id, seq(X, star(X))).
 /*%nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                                RE=.. [plus, X],
                                nfa_regexp_comp(FA_Id, X),
@@ -180,12 +180,15 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 rename_final(OldId, NewId):- nfa_final(OldId, Y),
                              retract(nfa_final(OldId, Y)),
                              assert(nfa_final(NewId, Y)).
+
 rename_initial(OldId, NewId):- nfa_initial(OldId, X),
                                retract(nfa_initial(OldId, X)),
                                assert(nfa_initial(NewId, X)).
+
 rename_delta(OldId, NewId):- nfa_delta(OldId, Q1, W, Q2),
                              retract(nfa_delta(OldId, Q1, W, Q2)),
                              assert(nfa_delta(NewId, Q1, W, Q2)).
+
 rename_deltas(OldId, NewId):- forall(rename_delta(OldId, NewId), true).
 
 %NFA_TEST
@@ -193,10 +196,12 @@ nfa_test(FA_Id, Input):- nfa_initial(FA_Id, S),
                          accept(FA_Id, Input, S).
 %accept
 accept(FA_Id, [], Q):- nfa_final(FA_Id, Q).
+
 accept(FA_Id, Xs, Q):- nfa_delta(FA_Id, Q, epsilon, S),
-                     accept(FA_Id, Xs, S).
+                       accept(FA_Id, Xs, S).
+
 accept(FA_Id, [X | Xs], Q):- nfa_delta(FA_Id, Q, X, S),
-                          accept(FA_Id, Xs, S).
+                             accept(FA_Id, Xs, S).
 %NFA_LISTING
 nfa_listing(FA_Id):- listing(nfa_initial(FA_Id, _)),
                      listing(nfa_final(FA_Id, _)),
@@ -205,6 +210,7 @@ nfa_listing(FA_Id):- listing(nfa_initial(FA_Id, _)),
 nfa_clear():- forall(retract(nfa_final(Y, X)), true),
               forall(retract(nfa_initial(Y, X)), true),
               forall(retract(nfa_delta(_, _, _, _)), true).
+
 nfa_clear(FA_Id):- retract(nfa_final(FA_Id, _)),
                    retract(nfa_initial(FA_Id, _)),
                    forall(retract(nfa_delta(FA_Id, _, _, _)), true).
