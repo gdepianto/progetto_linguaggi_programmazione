@@ -1,0 +1,8 @@
+(defun is-regexp (RE)
+  (if (atom RE)
+      T)
+  (if (and (not (equal RE nil)) (listp RE))
+      (cond ((listp (car RE)) (is-regexp (car RE)) (is-regexp (cdr RE)))
+            ((equal (car RE) 'star) (is-regexp (cdr RE)))
+            ((equal (car RE) 'seq) (is-regexp (cdr RE)))
+            ((atom (car RE)) T))))

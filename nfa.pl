@@ -1,5 +1,5 @@
-%IS_REGEXP
-%Caso base atomico
+%*******************************************************************************
+% IS_REGEXP Caso base atomico
 is_regexp(RE):- atomic(RE).
 %caso base e passo or
 is_regexp(RE):- RE=..[or, X, Y],
@@ -92,9 +92,9 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              RE=.. [seq, X | Xs],
                              SubRE=.. [seq | Xs],
                              nfa_regexp_comp(FA_Id, SubRE),
-			                       gensym(FA_Id, NewId),
+                             gensym(FA_Id, NewId),
                              nfa_regexp_comp(NewId, X),
-			                       nfa_final(NewId, OldFin1),
+                             nfa_final(NewId, OldFin1),
                              nfa_initial(FA_Id, OldIn2),
 			                       assert(nfa_delta(FA_Id, OldFin1, epsilon, OldIn2)),
 			                       retract(nfa_final(NewId, OldFin1)),
@@ -115,23 +115,23 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                              RE=.. [or, X, Y],
                              gensym(FA_Id, NewId1),
                              gensym(FA_Id, NewId2),
-			                       gensym(q, FinState),
+                             gensym(q, FinState),
                              gensym(q, InState),
                              nfa_regexp_comp(NewId1, X),
                              nfa_regexp_comp(NewId2, Y),
-			                       nfa_initial(NewId1, In1),
+			     nfa_initial(NewId1, In1),
                              nfa_initial(NewId2, In2),
                              nfa_final(NewId1, Fin1),
                              nfa_final(NewId2, Fin2),
-			                       assert(nfa_delta(FA_Id, InState, epsilon, In1)),
+			     assert(nfa_delta(FA_Id, InState, epsilon, In1)),
                              assert(nfa_delta(FA_Id, InState, epsilon, In2)),
-			                       assert(nfa_delta(FA_Id, Fin1, epsilon, FinState)),
+			     assert(nfa_delta(FA_Id, Fin1, epsilon, FinState)),
                              assert(nfa_delta(FA_Id, Fin2, epsilon, FinState)),
-			                       retract(nfa_initial(NewId1, In1)),
+			     retract(nfa_initial(NewId1, In1)),
                              retract(nfa_initial(NewId2, In2)),
                              retract(nfa_final(NewId1, Fin1)),
                              retract(nfa_final(NewId2, Fin2)),
-			                       assert(nfa_initial(FA_Id, InState)),
+			     assert(nfa_initial(FA_Id, InState)),
                              assert(nfa_final(FA_Id, FinState)),
                              nfa_list(NewId1,L1), %modifica
                              nfa_list(NewId2,L2), %modifica
@@ -192,12 +192,12 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 /*rename_final(OldId, NewId):- nfa_final(OldId, Y),
                              retract(nfa_final(OldId, Y)),
                              assert(nfa_final(NewId, Y)).*/
-rename(_,[]).
-rename(NewId,[X|Xs]):- X =.. [T,_|Ts],
-                       Y =.. [T,NewId|Ts],
-                       retract(X),
-                       assert(Y),
-                       rename(NewId,Xs).
+rename(_, []).
+rename(NewId, [X | Xs]):- X =.. [T, _ | Ts],
+                          Y =.. [T, NewId | Ts],
+                          retract(X),
+                          assert(Y),
+                          rename(NewId, Xs).
 
 /*rename_initial(OldId, NewId):- nfa_initial(OldId, X),
                                retract(nfa_initial(OldId, X)),
@@ -225,41 +225,41 @@ accept(FA_Id, [X | Xs], Q):- nfa_delta(FA_Id, Q, X, S),
                      listing(nfa_final(FA_Id, _)),
                      listing(nfa_delta(FA_Id, _, _, _)).*/
 
-nfa_list(FA_Id,L):- findall(X,nfa_list_deltas(FA_Id,X),L1),
-                    findall(Y,nfa_list_final(FA_Id,Y),L2),
-                    findall(Z,nfa_list_initial(FA_Id,Z),L3),
-                    appendi(L1,L2,L4),
-                    appendi(L3,L4,L).
+nfa_list(FA_Id, L):- findall(X, nfa_list_deltas(FA_Id, X), L1),
+                     findall(Y, nfa_list_final(FA_Id, Y), L2),
+                     findall(Z, nfa_list_initial(FA_Id, Z), L3),
+                     appendi(L1, L2, L4),
+                     appendi(L3, L4, L).
 
-nfa_list(L):- findall(X,nfa_list_deltas(X),L1),
-              findall(Y,nfa_list_final(Y),L2),
-              findall(Z,nfa_list_initial(Z),L3),
-              appendi(L1,L2,L4),
-              appendi(L3,L4,L).
+nfa_list(L):- findall(X, nfa_list_deltas(X), L1),
+              findall(Y, nfa_list_final(Y), L2),
+              findall(Z, nfa_list_initial(Z), L3),
+              appendi(L1, L2, L4),
+              appendi(L3, L4, L).
 
-nfa_list_deltas(FA_Id,X):- X =.. [nfa_delta,FA_Id,_,_,_],call(X).
-nfa_list_final(FA_Id,X):- X =.. [nfa_final,FA_Id,_],call(X).
-nfa_list_initial(FA_Id,X):- X =.. [nfa_initial,FA_Id,_],call(X).
+nfa_list_deltas(FA_Id, X):- X =.. [nfa_delta, FA_Id, _, _, _], call(X).
+nfa_list_final(FA_Id, X):- X =.. [nfa_final, FA_Id, _], call(X).
+nfa_list_initial(FA_Id, X):- X =.. [nfa_initial, FA_Id, _], call(X).
 
-nfa_list_deltas(X):- X =.. [nfa_delta,_,_,_,_],call(X).
-nfa_list_final(X):- X =.. [nfa_final,_,_],call(X).
-nfa_list_initial(X):- X =.. [nfa_initial,_,_],call(X).
+nfa_list_deltas(X):- X =.. [nfa_delta, _, _, _, _], call(X).
+nfa_list_final(X):- X =.. [nfa_final, _, _], call(X).
+nfa_list_initial(X):- X =.. [nfa_initial, _, _], call(X).
 
 %NFA_CLEAR
 /*nfa_clear():- forall(retract(nfa_final(Y, X)), true),
               forall(retract(nfa_initial(Y, X)), true),
               forall(retract(nfa_delta(_, _, _, _)), true).*/
 
-nfa_clear():- nfa_list(L),rimuovi(L).
+nfa_clear():- nfa_list(L), rimuovi(L).
 
 /*nfa_clear(FA_Id):- retract(nfa_final(FA_Id, _)),
                    retract(nfa_initial(FA_Id, _)),
                    forall(retract(nfa_delta(FA_Id, _, _, _)), true).*/
-nfa_clear(FA_Id):- nfa_list(FA_Id,L),rimuovi(L).
+nfa_clear(FA_Id):- nfa_list(FA_Id, L), rimuovi(L).
 
 rimuovi([]).
 rimuovi([X|Xs]):- retract(X), rimuovi(Xs).
 
 %APPENDI
-appendi([],X,X).
-appendi([X|Xs],Ys,[X|Zs]):- appendi(Xs,Ys,Zs).
+appendi([], X, X).
+appendi([X | Xs], Ys, [X | Zs]):- appendi(Xs, Ys, Zs).
