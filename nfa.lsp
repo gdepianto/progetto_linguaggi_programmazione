@@ -9,9 +9,19 @@
         ((and (listp RE) (not (or (equal (first RE) 'or) (equal (first RE) 'seq) (equal (first RE) 'star) (equal (first RE) 'plus) ) ) ) T)
         ))
 
+
 (defun nfa-regexp-comp (RE)
-  (cond ((atom RE) (atom-gen RE (gensym "q") (gensym "q")) )))
+  (cond ((atom RE) (atom-comp RE (gensym "q") (gensym "q")))
+        ((and (is-regexp RE) (equal (first RE) 'star)) (star-comp (rest RE) (gensym "q") (gensym "q"))) ))
 
 
 (defun atom-comp (RE x y)
   (list x y (list (list x RE y))))
+
+(defun star-comp (RE x y)
+  (append (third (sost-nodi (nfa-regexp-comp RE) x y)) '(banana))); non funge perchè ad un certo punto chiama una lista con un elemento che è diversa
+                                                                  ; da un atomo
+
+(defun sist-nodi (L x y)
+  (setf (first L) x)
+  (setf (second L) y))
