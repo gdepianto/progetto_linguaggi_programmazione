@@ -28,6 +28,39 @@
   ;(a b ((banana) (culo))) K
   ;(append (third K) (maracas))
 
-(defun sost-nodi (L x y)
-  (setf (first L) x)
-  (setf (second L) y))
+(defun nfa-test (nfa word)
+  (nfa-accept (list (first nfa)) word nfa) 
+)
+
+(defun nfa-accept (states word nfa)
+  (cond
+    ((null states) nil)
+    ((null word) (or (check-final states nfa) (nfa-accept (step-states states 'epsilon nfa) word nfa)))
+    (T (or (nfa-accept (step-states states (first word) nfa) (cdr word) nfa) (nfa-accept (step-states states 'epsilon nfa) word nfa)) )
+  )
+)
+
+
+(defun step-states (states sym nfa)
+  (mapcan (lambda (item)
+            (step-state item sym (third nfa))
+          )
+    states
+  )
+)
+
+(defun step-state (state sym deltas)
+  (cond
+    ((null deltas) nil)
+    ((and (equal (first (first deltas)) state) (equal (second (first deltas)) sym)) (append (list (third (first deltas))) (step-state state sym (cdr deltas))))
+    (t (step-state state sym (cdr deltas)))
+  )
+)
+
+(defun check-final (states nfa)
+  (cond
+    ((null states) nil)
+    ((equal (second nfa) (first states)) T)
+    ((not (equal (second nfa) (first states))) (check-final (cdr states) nfa))
+  )
+)
