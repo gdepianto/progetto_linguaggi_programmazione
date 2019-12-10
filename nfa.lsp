@@ -12,16 +12,23 @@
 
 (defun nfa-regexp-comp (RE)
   (cond ((atom RE) (atom-comp RE (gensym "q") (gensym "q")))
-        ((and (is-regexp RE) (equal (first RE) 'star)) (star-comp (rest RE) (gensym "q") (gensym "q"))) ))
+        ((and (is-regexp RE) (equal (first RE) 'star)) (star-comp RE (gensym "q") (gensym "q"))) ))
 
 
 (defun atom-comp (RE x y)
   (list x y (list (list x RE y))))
 
-(defun star-comp (RE x y)
-  (append (third (sost-nodi (nfa-regexp-comp RE) x y)) '(banana))); non funge perchè ad un certo punto chiama una lista con un elemento che è diversa
-                                                                  ; da un atomo
+(defun star-comp (RE x y); non funge perchè ad un certo punto chiama una lista con un elemento che è diversa
+  (delta-star (nfa-regexp-comp (second RE)) x y))
+                                                                         ; da un atomo
+(defun delta-star (L x y)
+  (setq L (list x y (append (third L) (list (list x 'epsilon (first L))
+                                            (list (second L) 'epsilon y )
+                                            (list x 'epsilon y)
+                                            (list (second L) 'epsilon (first L)))))));scrivo delta nell'append
+  ;(a b ((banana) (culo))) K
+  ;(append (third K) (maracas))
 
-(defun sist-nodi (L x y)
+(defun sost-nodi (L x y)
   (setf (first L) x)
   (setf (second L) y))
