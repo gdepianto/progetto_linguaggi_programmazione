@@ -9,7 +9,6 @@
         ((and (listp RE) (not (or (equal (first RE) 'or) (equal (first RE) 'seq) (equal (first RE) 'star) (equal (first RE) 'plus) ) ) ) T)
         ))
 
-
 (defun nfa-regexp-comp (RE)
   (cond ((atom RE) (atom-comp RE (gensym "q") (gensym "q")))
         ((and (is-regexp RE) (equal (first RE) 'star)) (star-comp RE (gensym "q") (gensym "q"))) ))
