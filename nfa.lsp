@@ -11,9 +11,11 @@
         ))
 ;;;REGEXP-COMP
 (defun nfa-regexp-comp (RE)
-  (cond
-    ((atom RE) (atom-comp RE (gensym "q") (gensym "q")))
-    ((and (is-regexp RE) (equal (first RE) 'star)) (star-comp RE (gensym "q") (gensym "q"))) ))
+  (cond ((atom RE) (atom-comp RE (gensym "q") (gensym "q")))
+        ((and (is-regexp RE) (equal (first RE) 'star)) (star-comp RE (gensym "q") (gensym "q")))
+        ((and (is-regexp RE) (equal (first RE) 'seq)) (seq-comp (cdr RE)))
+  )
+)
 
 
 (defun atom-comp (RE x y)
@@ -24,13 +26,22 @@
 
 (defun delta-star (L x y)
   (list x y (append (third L) (list (list x 'epsilon (first L))
-                                    (list (second L) 'epsilon y )
-                                    (list x 'epsilon y)
-                                    (list (second L) 'epsilon (first L)))
-            )
+                                            (list (second L) 'epsilon y )
+                                            (list x 'epsilon y)
+                                            (list (second L) 'epsilon (first L))))));scrivo delta nell'append
+  ;(a b ((banana) (culo))) K
+  ;(append (third K) (maracas))
+
+(defun seq-comp (RE)
+  (cond ((null (cdr RE)) (nfa-regexp-comp (car RE)))
+        (T (delta-seq (nfa-regexp-comp (first RE)) (seq-comp (cdr RE) )))
   )
 )
-;;;NFA-TEST
+
+(defun delta-seq (nfa1 nfa2)
+  (list (first nfa1) (second nfa2) (append (third nfa1) (third nfa2) (list (list (second nfa1) 'epsilon (first nfa2)))))
+)
+
 (defun nfa-test (nfa word)
   (nfa-accept (list (first nfa)) word nfa)
 )
