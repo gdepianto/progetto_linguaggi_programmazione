@@ -17,14 +17,14 @@
 (defun atom-comp (RE x y)
   (list x y (list (list x RE y))))
 
-(defun star-comp (RE x y); non funge perchè ad un certo punto chiama una lista con un elemento che è diversa
+(defun star-comp (RE x y)
   (delta-star (nfa-regexp-comp (second RE)) x y))
-                                                                         ; da un atomo
+
 (defun delta-star (L x y)
-  (setq L (list x y (append (third L) (list (list x 'epsilon (first L))
+  (list x y (append (third L) (list (list x 'epsilon (first L))
                                             (list (second L) 'epsilon y )
                                             (list x 'epsilon y)
-                                            (list (second L) 'epsilon (first L)))))));scrivo delta nell'append
+                                            (list (second L) 'epsilon (first L))))));scrivo delta nell'append
   ;(a b ((banana) (culo))) K
   ;(append (third K) (maracas))
 
