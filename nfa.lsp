@@ -14,6 +14,7 @@
   (cond ((atom RE) (atom-comp RE (gensym "q") (gensym "q")))
         ((and (is-regexp RE) (equal (first RE) 'star)) (star-comp RE (gensym "q") (gensym "q")))
         ((and (is-regexp RE) (equal (first RE) 'seq)) (seq-comp (cdr RE)))
+        ((and (is-regexp RE) (equal (first RE) 'or)) (or-comp (cdr RE) (gensym "q") (gensym "q")))
   )
 )
 
@@ -42,6 +43,24 @@
   (list (first nfa1) (second nfa2) (append (third nfa1) (third nfa2) (list (list (second nfa1) 'epsilon (first nfa2)))))
 )
 
+(defun or-comp (RE x y)
+  (cond ((null (cdr RE)) (nfa-regexp-comp (car RE)))
+        (T (delta-or (nfa-regexp-comp (first RE)) (or-comp (cdr RE) x y) x y))
+  )
+)
+
+(defun delta-or (nfa1 nfa2 x y)
+  (if (equal (first nfa2) 'blank)
+    (list x y (append (third nfa1) (third nfa2) (list (list x 'epsilon (first nfa1)))
+                                                                        (list (list (second nfa1) 'epsilon y))))
+    (list 'blank 'blank (append (third nfa1) (third nfa2) (list (list x 'epsilon (first nfa1)))
+                                                                        (list (list (second nfa1) 'epsilon y))
+                                                                        (list (list x 'epsilon (first nfa2)))
+                                                                        (list (list (second nfa2) 'epsilon y))))
+    )
+)
+
+;;NNFA-TEST
 (defun nfa-test (nfa word)
   (nfa-accept (list (first nfa)) word nfa)
 )
@@ -57,6 +76,7 @@
 
 (defun step-states (states sym nfa)
   (mapcan (lambda (item)
+
             (step-state item sym (third nfa))
           )
     states
