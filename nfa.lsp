@@ -9,19 +9,21 @@
         ((and (equal (first RE) 'or) (is-regexp (second RE))) (is-regexp (append (list (first RE)) (cdr (cdr RE)))))
         ((and (listp RE) (not (or (equal (first RE) 'or) (equal (first RE) 'seq) (equal (first RE) 'star) (equal (first RE) 'plus) ) ) ) T)
         ))
+        
 ;;;REGEXP-COMP
 (defun nfa-regexp-comp (RE)
   (cond ((atom RE) (atom-comp RE (gensym "q") (gensym "q")))
         ((and (is-regexp RE) (equal (first RE) 'star)) (star-comp RE (gensym "q") (gensym "q")))
         ((and (is-regexp RE) (equal (first RE) 'seq)) (seq-comp (cdr RE)))
         ((and (is-regexp RE) (equal (first RE) 'or)) (or-comp (cdr RE) (gensym "q") (gensym "q")))
+        ((and (is-regexp RE) (equal (first RE) 'plus)) (nfa-regexp-comp (list 'seq (second RE) (list 'star (second RE))) ))
   )
 )
 
-
+;;;COMPILAZIONE ATOMO
 (defun atom-comp (RE x y)
   (list x y (list (list x RE y))))
-
+;;;COMPILAZIONE STAR
 (defun star-comp (RE x y)
   (delta-star (nfa-regexp-comp (second RE)) x y))
 
@@ -29,10 +31,8 @@
   (list x y (append (third L) (list (list x 'epsilon (first L))
                                             (list (second L) 'epsilon y )
                                             (list x 'epsilon y)
-                                            (list (second L) 'epsilon (first L))))));scrivo delta nell'append
-  ;(a b ((banana) (culo))) K
-  ;(append (third K) (maracas))
-
+                                            (list (second L) 'epsilon (first L))))))
+;;;COMPILAZIONE SEQ
 (defun seq-comp (RE)
   (cond ((null (cdr RE)) (nfa-regexp-comp (car RE)))
         (T (delta-seq (nfa-regexp-comp (first RE)) (seq-comp (cdr RE) )))
@@ -43,6 +43,7 @@
   (list (first nfa1) (second nfa2) (append (third nfa1) (third nfa2) (list (list (second nfa1) 'epsilon (first nfa2)))))
 )
 
+;;;COMPILAZIONE OR
 (defun or-comp (RE x y)
   (cond ((null (cdr RE)) (nfa-regexp-comp (car RE)))
         (T (delta-or (nfa-regexp-comp (first RE)) (or-comp (cdr RE) x y) x y))
