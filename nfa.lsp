@@ -9,7 +9,7 @@
         ((and (equal (first RE) 'or) (is-regexp (second RE))) (is-regexp (append (list (first RE)) (cdr (cdr RE)))))
         ((and (listp RE) (not (or (equal (first RE) 'or) (equal (first RE) 'seq) (equal (first RE) 'star) (equal (first RE) 'plus) ) ) ) T)
         ))
-        
+
 ;;;REGEXP-COMP
 (defun nfa-regexp-comp (RE)
   (cond ((atom RE) (atom-comp RE (gensym "q") (gensym "q")))
@@ -45,21 +45,29 @@
 
 ;;;COMPILAZIONE OR
 (defun or-comp (RE x y)
-  (cond ((null (cdr RE)) (nfa-regexp-comp (car RE)))
-        (T (delta-or (nfa-regexp-comp (first RE)) (or-comp (cdr RE) x y) x y))
+  (delta-or (mapcar 'nfa-regexp-comp RE) x y)
+)
+
+(defun delta-or (L x y)
+  (list x y (build-deltas L x y))
+)
+
+(defun build-deltas (L x y)
+  (if (null (cdr L))
+      (append (third (car L)) (list (list x 'epsilon (first (first L))) (list (second (first L)) 'epsilon y) ))
+      (append (third (car L)) (list (list x 'epsilon (first (first L))) (list (second (first L)) 'epsilon y) ) (build-deltas (cdr L) x y))
   )
 )
 
-(defun delta-or (nfa1 nfa2 x y)
-  (if (equal (first nfa2) 'blank)
-    (list x y (append (third nfa1) (third nfa2) (list (list x 'epsilon (first nfa1)))
-                                                                        (list (list (second nfa1) 'epsilon y))))
-    (list 'blank 'blank (append (third nfa1) (third nfa2) (list (list x 'epsilon (first nfa1)))
-                                                                        (list (list (second nfa1) 'epsilon y))
-                                                                        (list (list x 'epsilon (first nfa2)))
-                                                                        (list (list (second nfa2) 'epsilon y))))
-    )
-)
+;(defun delta-or (L x y)
+;  (if (equal (first nfa2) 'blank)
+;    (list x y (append (third nfa1) (third nfa2) (list (list x 'epsilon (first nfa1)))
+;                                                      (list (list (second nfa1) 'epsilon y))))
+;    (list 'blank 'blank (append (third nfa1) (third nfa2) (list (list x 'epsilon (first nfa1)))
+;                                                                        (list (list (second nfa1) 'epsilon y))
+;                                                                        (list (list x 'epsilon (first nfa2)))
+;    )                                                                        (list (list (second nfa2) 'epsilon y))))
+;)
 
 ;;NNFA-TEST
 (defun nfa-test (nfa word)
