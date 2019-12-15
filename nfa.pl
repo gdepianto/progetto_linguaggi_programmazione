@@ -25,7 +25,7 @@ is_regexp(RE):- RE=..[plus, X],!,
                 is_regexp(X).
 
 %caso compound
-is_regexp(RE):- compound(RE).
+is_regexp(RE):- compound(RE),not(is_list(RE)).
 
 %NFA_REGEXP_COMP
 %ATOMICO: scrive delta per un atomo
@@ -38,7 +38,7 @@ nfa_regexp_comp(FA_Id, RE):- atomic(RE),!,
 %STAR
 %-Controlla che la RE sia star e lancia comp su i suoi argomenti
 %-Genera un nuovo nodo iniziale e un nuovo nodo finale
-%-Prende i nodi iniziali e finale dell'automa precendetemente costruito
+%-Prende i nodi iniziali e finale dell automa precendetemente costruito
 %-Agiunge alla base di conoscenza i delta con epsilon mosse
 %-Rende i vecchi nodi inizialie  finali dei nodi semplici
 %-Rende i nuovi nodi inizali e finali tali
@@ -64,7 +64,7 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %-Connette il nodo finale del primo sottoautoma a quello iniziale del secondo
 % con una epsilon mossa.
 %-Fa in modo che questi due nodi non siano più considerati iniziali e finali
-%-Sostituisce l'FA_Id originale ai due Id sostitutivi
+%-Sostituisce l FA_Id originale ai due Id sostitutivi
 nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                             RE=.. [seq, X, Y],!,
                             gensym(FA_Id, NewId1),
