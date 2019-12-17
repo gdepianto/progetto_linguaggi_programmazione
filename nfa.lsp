@@ -17,6 +17,7 @@
         ((and (is-regexp RE) (equal (first RE) 'seq)) (seq-comp (cdr RE)))
         ((and (is-regexp RE) (equal (first RE) 'or)) (or-comp (cdr RE) (gensym "q") (gensym "q")))
         ((and (is-regexp RE) (equal (first RE) 'plus)) (nfa-regexp-comp (list 'seq (second RE) (list 'star (second RE))) ))
+        ((is-regexp RE) (atom-comp RE (gensym "q") (gensym "q")))
   )
 )
 
@@ -71,7 +72,46 @@
 
 ;;NNFA-TEST
 (defun nfa-test (nfa word)
-  (nfa-accept (list (first nfa)) word nfa)
+  (if (listp word)
+    (if (is-automata nfa)
+    (nfa-accept
+     (list (first nfa))
+     word nfa
+     )
+        (error "~S is not a Finite State Automata." nfa)
+    )
+    nil
+  )
+)
+
+(defun is-automata (L)
+  (and     (listp L)
+           (atom (first L))
+           (atom (second L))
+           (listp (third L))
+           (are-deltas (third L))))
+
+(defun are-deltas (deltas)
+  (cond ((null deltas) nil)
+        ((and (listp (first deltas))
+              (null (rest deltas))
+              (atom (first (first deltas)))
+              (atom (third (first deltas)))
+              (not (null (second (first deltas))))
+              (not (null (third (first deltas))))
+              (null (fourth (first deltas))))
+              T)
+
+        (T (and (listp (first deltas))
+                (atom (first (first deltas)))
+                (atom (third (first deltas)))
+                (not (null (second (first deltas))))
+                (not (null (third (first deltas))))
+                (null (fourth (first deltas)))
+                (are-deltas (rest deltas))))
+
+
+  )
 )
 
 (defun nfa-accept (states word nfa)

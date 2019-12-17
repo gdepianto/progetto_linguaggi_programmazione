@@ -29,7 +29,8 @@ is_regexp(RE):- compound(RE),not(is_list(RE)).
 
 %NFA_REGEXP_COMP
 %ATOMICO: scrive delta per un atomo
-nfa_regexp_comp(FA_Id, RE):- atomic(RE),!,
+nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
+                             atomic(RE),!,
                              gensym(q, X),
                              gensym(q, Y),
                              assert(nfa_initial(FA_Id, X)),
@@ -42,7 +43,8 @@ nfa_regexp_comp(FA_Id, RE):- atomic(RE),!,
 %-Agiunge alla base di conoscenza i delta con epsilon mosse
 %-Rende i vecchi nodi inizialie  finali dei nodi semplici
 %-Rende i nuovi nodi inizali e finali tali
-nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
+nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
+                             is_regexp(RE),
                              RE=.. [star, X],
                              nfa_regexp_comp(FA_Id, X),
                              gensym(q, In),
@@ -65,7 +67,8 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 % con una epsilon mossa.
 %-Fa in modo che questi due nodi non siano più considerati iniziali e finali
 %-Sostituisce l FA_Id originale ai due Id sostitutivi
-nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
+nfa_regexp_comp(FA_Id, RE):-nonvar(FA_Id),
+                            is_regexp(RE),
                             RE=.. [seq, X, Y],!,
                             gensym(FA_Id, NewId1),
                             gensym(FA_Id, NewId2),
@@ -91,7 +94,8 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %-Creo automa per il primo elemento utilizzando un Id nuovo
 %-Collego il final del primo automa al restante
 %-Rinomino il primo automa con l Id correto.
-nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
+nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
+                             is_regexp(RE),
                              RE=.. [seq, X | Xs],!,
                              SubRE=.. [seq | Xs],
                              nfa_regexp_comp(FA_Id, SubRE),
@@ -114,7 +118,8 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %-Genera i due sotto-automi
 %-Collega i due dfa ai nuovi stati iniziali e finali
 %-Elimina initial e final dei sotto alberi e rinomina i delta
-nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
+nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
+                             is_regexp(RE),
                              RE=.. [or, X, Y],!,
                              gensym(FA_Id, NewId1),
                              gensym(FA_Id, NewId2),
@@ -151,7 +156,8 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %-Collega l automa X all Automa Xs con epsilon mosse
 %-Cancella nodi iniziali e finali del nuovo ID
 %-Rinomina i delta dell automa X
-nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
+nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
+                             is_regexp(RE),
                              RE=.. [or, X | Xs],!,
                              SubRE=.. [or | Xs],
                              nfa_regexp_comp(FA_Id, SubRE),
@@ -172,7 +178,8 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
 %Si può svolgere in due modi:
 %1. Chiamando la compilazione di una nuova regexp: "seq(X, star(X)".
 %2. In maniera simile allo star, ma con un delta in meno (commentato).
-nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
+nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
+                             is_regexp(RE),
                              RE=.. [plus, X],!,
                              nfa_regexp_comp(FA_Id, seq(X, star(X))).
 /*%nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
@@ -190,7 +197,8 @@ nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
                                assert(nfa_initial(FA_Id, In)),
                                assert(nfa_final(FA_Id, Fin)).*/
 %COMPOUND
-nfa_regexp_comp(FA_Id, RE):- compound(RE),
+nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
+                             compound(RE),
                              gensym(q, X),
                              gensym(q, Y),
                              assert(nfa_initial(FA_Id, X)),
