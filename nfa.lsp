@@ -129,7 +129,7 @@
 	    (not (null (second (first deltas))))
 	    (not (null (third (first deltas))))
 	    (null (fourth (first deltas)))
-	    (are-deltas (rest deltas)))))))
+	    (are-deltas (rest deltas))))))
 
 (defun nfa-accept (states word nfa)
   (cond ((null states) nil)
