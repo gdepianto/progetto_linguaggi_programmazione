@@ -1,5 +1,5 @@
 # progetto_lp
-Progetto di linguaggi di programmazzione
+Progetto di linguaggi di programmazione
 PROLOG
 
 Descrizione del progetto:
