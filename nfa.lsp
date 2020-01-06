@@ -1,4 +1,10 @@
+;; Ciapponi Stefano ######
+;; De Pianto Gioele 845002
+
+
 ;;;IS_REGEXP
+;ritorna T se RE è un'espressione regolare
+;se RE non è un'espressione regolare ritorna nil
 (defun is-regexp (RE)
   (cond ((atom RE) T)
         ((and (equal (first RE) 'seq)
@@ -32,6 +38,10 @@
 	 T)))
 
 ;;;REGEXP-COMP
+;crea una lista che rappresenta l'automa
+;la lista è del tip (q0 q1 deltas) dove 10 è stato iniziale e q1 stato finale
+;deltas è a sua volta una lista di triple del tipo (q0 a q1)
+;la quale rappresenta la transizione dallo stato q0 al q1 con l'atomo 'a'
 (defun nfa-regexp-comp (RE)
   (cond ((atom RE)
 	 (atom-comp RE (gensym "q") (gensym "q")))
@@ -50,10 +60,20 @@
         ((is-regexp RE)
 	 (atom-comp RE (gensym "q") (gensym "q")))))
 
-;;;COMPILAZIONE ATOMO
+;;;COMPILAZIONE ATOMO (o compound non riservato)
+;genera l'automa per una RE atomica
 (defun atom-comp (RE x y)
   (list x y (list (list x RE y))))
+
 ;;;COMPILAZIONE STAR
+;genera l'automa per STAR
+;prima genera ricorsivamente l'automa dell'argomento dello STAR
+;tramite la funzione delta-star aggiunge le epsilon-transizioni necessarie
+;sostituisce gli stati iniziali e finali
+;aggiunge epsilon-transizione dal nuovo stato iniziale al vecchio stato iniziale
+;aggiunge epsilon-transizione dal vecchio stato finale al nuovo stato finale
+;aggiunge epsilon-transizione dallo stato iniziale a quello finale
+;aggiunge epsilon-transizione dal vecchio stato finale al vecchio iniziale
 (defun star-comp (RE x y)
   (delta-star (nfa-regexp-comp (second RE)) x y))
 
@@ -64,6 +84,12 @@
 		    (list x 'epsilon y)
 		    (list (second L) 'epsilon (first L))))))
 ;;;COMPILAZIONE SEQ
+;genera gli automi degli elementi della sequenza
+;tramite la funzione delta-seq li collega tramite epsilon-transizioni
+;seq-comp è chiamata ricorsivamente con:
+; caso base:è rimasto un solo elemento e quindi ne genera l'automat
+; caso passo:genera l'automa del primo elemento e lo collega (tramite delta-seq)
+;            alla chiamata ricorsiva di seq-comp
 (defun seq-comp (RE)
   (cond ((null (cdr RE))
 	 (nfa-regexp-comp (car RE)))
@@ -78,6 +104,15 @@
 		(list (list (second nfa1) 'epsilon (first nfa2))))))
 
 ;;;COMPILAZIONE OR
+;genera gli automi degli elementi dell'or
+;crea l'or tramite l'aggiunta di epsilon-transizioni con le funzioni delta-or
+;e build-deltas
+;
+;crea epsilon-transizioni dallo stato iniziale dell'automa agli stati iniziali
+;degli automi dei singoli argomenti dell or
+;
+;crea epsilon-transizioni dagli stati finali degli automi dei singoli argomenti
+;dell or allo stato finale dell'automa
 (defun or-comp (RE x y)
   (delta-or (mapcar 'nfa-regexp-comp RE) x y)
 )
@@ -104,6 +139,12 @@
       (error "~S is not a Finite State Automata." nfa))
   nil))
 
+;IS-AUTOMATA
+;per essere un automa deve essere una lista composta da tre elementi
+; 1) atomo che corrisponde allo stato iniziale
+; 2) atomo che corrisponde allo stato finale
+; 3) lista di triple che corrisponde alla funzione delta controllata tramie
+;    la funzione are-deltas
 (defun is-automata (L)
   (and (listp L)
        (atom (first L))
@@ -131,6 +172,13 @@
 	    (null (fourth (first deltas)))
 	    (are-deltas (rest deltas))))))
 
+
+;NFA-ACCEPT
+;accetta la stringa come fosse un epsilon-nfa
+;accetta la stringa solo se quando si ferma uno degli stati in cui è arrivato
+;è uno stato finale
+;utilizza le funzione step-states, step-state e check-final
+
 (defun nfa-accept (states word nfa)
   (cond ((null states) nil)
         ((null word)
@@ -140,12 +188,14 @@
  (or (nfa-accept (step-states states (first word) nfa) (cdr word) nfa)
      (nfa-accept (step-states states 'epsilon nfa) word nfa)))))
 
-
+;partendo da una lista di stati ritorna la lista degli stati applicando
+;la funzione delta dell'automa con un simbolo passato
 (defun step-states (states sym nfa)
   (mapcan (lambda (item)
-	    (step-state item sym (third nfa)))
-            states))
+            (step-state item sym (third nfa)))
+          states))
 
+;partendo da uno stato ed un simbolo applica la delta
 (defun step-state (state sym deltas)
        (cond ((null deltas) nil)
              ((and (equal (first (first deltas)) state)
@@ -154,6 +204,7 @@
 		      (step-state state sym (cdr deltas))))
              (t (step-state state sym (cdr deltas)))))
 
+;ritorna T se almeno uno stato di quelli passati è finale
 (defun check-final (states nfa)
   (cond ((null states) nil)
         ((equal (second nfa) (first states))
