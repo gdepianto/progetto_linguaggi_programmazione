@@ -14,7 +14,7 @@ Predicati:
 
 ?-nfa_regexp_comp(FA_Id, RE):
     Compila l'espressione regolare RE in un automa aggiungendo alla base di conoscenza degli elementi 
-    "nfa_delta" costruiti in base all'algoritmo di costruzione di Thompson.
+    "nfa_delta" generati attraverso l'algoritmo di costruzione di Thompson.
     Il predicato ha due casi base (atomic e compound) e vari casi ricorsivi che si occupano di costruire l'automa corrispondente ai             vari simboli (STAR, PLUS, OR e SEQ).
     In alcuni casi sono stati generati nuovi ID a partire dall'originale (FA_Id) per costruire sotto automi, necessari per la costruione       dell'automa principale. Per questo motivo sono stati scritti predicati ausiliari che facilitassero la sostituzione del nuovo ID             generato, con quello originale (nello specifico RENAME).
 
