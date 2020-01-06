@@ -48,7 +48,7 @@
 	      (equal (first RE) 'plus))
 	 (nfa-regexp-comp (list 'seq (second RE) (list 'star (second RE))) ))
         ((is-regexp RE)
-	 (atom-comp RE (gensym "q") (gensym "q"))))))
+	 (atom-comp RE (gensym "q") (gensym "q")))))
 
 ;;;COMPILAZIONE ATOMO
 (defun atom-comp (RE x y)

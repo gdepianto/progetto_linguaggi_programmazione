@@ -30,7 +30,7 @@ is_regexp(RE):- compound(RE),not(is_list(RE)).
 %NFA_REGEXP_COMP
 %ATOMICO: scrive delta per un atomo
 nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
-                             atomic(RE),!,
+                             atomic(RE), !,
                              gensym(q, X),
                              gensym(q, Y),
                              assert(nfa_initial(FA_Id, X)),
@@ -182,20 +182,7 @@ nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
                              is_regexp(RE),
                              RE=.. [plus, X],!,
                              nfa_regexp_comp(FA_Id, seq(X, star(X))).
-/*%nfa_regexp_comp(FA_Id, RE):- is_regexp(RE),
-                               RE=.. [plus, X],
-                               nfa_regexp_comp(FA_Id, X),
-                               gensym(q, In),
-                               gensym(q, Fin),
-                               nfa_initial(FA_Id, OldIn),
-                               nfa_final(FA_Id, OldFin),
-                               assert(nfa_delta(FA_Id, In, epsilon, OldIn)),
-                               assert(nfa_delta(FA_Id, OldFin, epsilon, Fin)),
-                               assert(nfa_delta(FA_Id, OldFin, epsilon, OldIn)),
-                               retract(nfa_initial(FA_Id, OldIn)),
-                               retract(nfa_final(FA_Id, OldFin)),
-                               assert(nfa_initial(FA_Id, In)),
-                               assert(nfa_final(FA_Id, Fin)).*/
+
 %COMPOUND
 nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
                              compound(RE),
