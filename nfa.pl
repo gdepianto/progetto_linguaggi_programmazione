@@ -1,3 +1,5 @@
+% Ciapponi Stefano ######
+% De Pianto Gioele 845002
 %*******************************************************************************
 % IS_REGEXP Caso base atomico
 is_regexp(RE):- atomic(RE).
