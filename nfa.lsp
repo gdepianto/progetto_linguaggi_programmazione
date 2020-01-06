@@ -148,7 +148,7 @@
 ;    )                                                                        (list (list (second nfa2) 'epsilon y))))
 ;)
 
-;;NNFA-TEST
+;;NFA-TEST
 ;ritorna T se l'automa passato accetta la stringa altrimenti torna nil
 ;tramite is-automata controlla anche che l'nfa in input sia effetivamente un nfa
 ;se nfa non è un automa ritorna errore
