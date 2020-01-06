@@ -4,7 +4,7 @@ PROLOG
 
 Descrizione del progetto:
     Il progetto consiste in un compilatore di Regexp (Espressioni regolari) in automi a stati finiti Non deterministici, con conseguente       simulazione dell'automa.
-    Dato un determinato input l'automa specifica se tale input appartiene o meno al linguaggio definito dall'espressione regolare               utilizzata per compilare l'automa.
+    Dato un determinato input l'automa specifica se tale input appartiene o meno al linguaggio definito dall'espressione regolare               utilizzata nella compilazione.
 
 Predicati:
 ?-is_regexp(RE):
