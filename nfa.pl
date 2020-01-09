@@ -81,14 +81,10 @@ nfa_regexp_comp(FA_Id, RE):-nonvar(FA_Id),
                             assert(nfa_delta(FA_Id, Fin1, epsilon, In2)),
                             retract(nfa_final(NewId1, Fin1)),
                             retract(nfa_initial(NewId2, In2)),
-                            nfa_list(NewId1,L1), %modifica
-                            nfa_list(NewId2,L2), %modifica
-                            rename(FA_Id,L1), %modifica
-                            rename(FA_Id,L2).%modifica
-                            %rename_initial(NewId1, FA_Id),
-                            %rename_deltas(NewId1, FA_Id),
-                            %rename_deltas(NewId2, FA_Id),
-                            %rename_final(NewId2, FA_Id).
+                            nfa_list(NewId1,L1),
+                            nfa_list(NewId2,L2),
+                            rename(FA_Id,L1),
+                            rename(FA_Id,L2).
 
 %Passo:
 %-Creo il sotto automa formato da seq(Xs), Xs sono tutti gli argomenti tranne il
@@ -108,10 +104,8 @@ nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
 			                       assert(nfa_delta(FA_Id, OldFin1, epsilon, OldIn2)),
 			                       retract(nfa_final(NewId, OldFin1)),
                              retract(nfa_initial(FA_Id, OldIn2)),
-                             nfa_list(NewId,L), %modifica
-                             rename(FA_Id,L). %modifica
-			                       %rename_initial(NewId, FA_Id),
-                             %rename_deltas(NewId, FA_Id).
+                             nfa_list(NewId,L),
+                             rename(FA_Id,L).
 
 %OR
 %Caso base:
@@ -143,12 +137,11 @@ nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
                              retract(nfa_final(NewId2, Fin2)),
 			     assert(nfa_initial(FA_Id, InState)),
                              assert(nfa_final(FA_Id, FinState)),
-                             nfa_list(NewId1,L1), %modifica
-                             nfa_list(NewId2,L2), %modifica
-                             rename(FA_Id,L1), %modifica
-                             rename(FA_Id,L2).%modifica
-                             %rename_deltas(NewId1, FA_Id),
-                             %rename_deltas(NewId2, FA_Id).
+                             nfa_list(NewId1,L1),
+                             nfa_list(NewId2,L2),
+                             rename(FA_Id,L1),
+                             rename(FA_Id,L2).
+
 %Passo:
 %-Creo il sotto automa formato da or(Xs), Xs sono tutti gli argomenti tranne il
 % primo.
@@ -173,9 +166,9 @@ nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
                              assert(nfa_delta(FA_Id, OldFin, epsilon, NewFin)),
                              retract(nfa_final(NewId, OldFin)),
                              retract(nfa_initial(NewId, OldIn)),
-                             nfa_list(NewId,L), %modifica
-                             rename(FA_Id,L). %modifica
-                             %rename_deltas(NewId, FA_Id).
+                             nfa_list(NewId,L),
+                             rename(FA_Id,L).
+
 %PLUS
 %Si può svolgere in due modi:
 %1. Chiamando la compilazione di una nuova regexp: "seq(X, star(X)".
@@ -196,25 +189,12 @@ nfa_regexp_comp(FA_Id, RE):- nonvar(FA_Id),
 
 %RENAME
 %Predicati per semplificare la rinominazione dei nodi
-/*rename_final(OldId, NewId):- nfa_final(OldId, Y),
-                             retract(nfa_final(OldId, Y)),
-                             assert(nfa_final(NewId, Y)).*/
 rename(_, []).
 rename(NewId, [X | Xs]):- X =.. [T, _ | Ts],
                           Y =.. [T, NewId | Ts],
                           retract(X),
                           assert(Y),
                           rename(NewId, Xs).
-
-/*rename_initial(OldId, NewId):- nfa_initial(OldId, X),
-                               retract(nfa_initial(OldId, X)),
-                               assert(nfa_initial(NewId, X)).
-
-rename_delta(OldId, NewId):- nfa_delta(OldId, Q1, W, Q2),
-                             retract(nfa_delta(OldId, Q1, W, Q2)),
-                             assert(nfa_delta(NewId, Q1, W, Q2)).
-
-rename_deltas(OldId, NewId):- forall(rename_delta(OldId, NewId), true).*/
 
 %NFA_TEST
 nfa_test(FA_Id, Input):- nfa_initial(FA_Id, S),
@@ -228,9 +208,9 @@ accept(FA_Id, Xs, Q):- nfa_delta(FA_Id, Q, epsilon, S),
 accept(FA_Id, [X | Xs], Q):- nfa_delta(FA_Id, Q, X, S),
                              accept(FA_Id, Xs, S).
 %NFA_LISTING
-/*nfa_listing(FA_Id):- listing(nfa_initial(FA_Id, _)),
+nfa_listing(FA_Id):- listing(nfa_initial(FA_Id, _)),
                      listing(nfa_final(FA_Id, _)),
-                     listing(nfa_delta(FA_Id, _, _, _)).*/
+                     listing(nfa_delta(FA_Id, _, _, _)).
 
 nfa_list(FA_Id, L):- findall(X, nfa_list_deltas(FA_Id, X), L1),
                      findall(Y, nfa_list_final(FA_Id, Y), L2),
@@ -253,15 +233,8 @@ nfa_list_final(X):- X =.. [nfa_final, _, _], call(X).
 nfa_list_initial(X):- X =.. [nfa_initial, _, _], call(X).
 
 %NFA_CLEAR
-/*nfa_clear():- forall(retract(nfa_final(Y, X)), true),
-              forall(retract(nfa_initial(Y, X)), true),
-              forall(retract(nfa_delta(_, _, _, _)), true).*/
 
 nfa_clear():- nfa_list(L), rimuovi(L).
-
-/*nfa_clear(FA_Id):- retract(nfa_final(FA_Id, _)),
-                   retract(nfa_initial(FA_Id, _)),
-                   forall(retract(nfa_delta(FA_Id, _, _, _)), true).*/
 nfa_clear(FA_Id):- nfa_list(FA_Id, L), rimuovi(L).
 
 rimuovi([]).
