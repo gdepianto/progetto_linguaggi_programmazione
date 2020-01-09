@@ -1,6 +1,6 @@
 Progetto di linguaggi di programmazione
 Studenti:
-Ciapponi Stefano ######
+Ciapponi Stefano 844811
 De Pianto Gioele 845002
 
 LISP
@@ -10,7 +10,7 @@ Descrizione progetto:
   in automi a stati finiti Non deterministici,
   con conseguente simulazione dell'automa.
   Dato un determinato input l'automa specifica se tale input appartiene o meno
-  al linguaggio definito dall'espressione regolare utilizzato per compilare
+  al linguaggio definito dall'espressione regolare utilizzata per compilare
   l'automa.
 
 Funzioni:
